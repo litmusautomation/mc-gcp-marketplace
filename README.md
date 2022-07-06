@@ -38,6 +38,9 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
 ```
 ## Deploy The Manufacturing Connect via Google Cloud Marketplace
 After you've created a Kubernetes cluster, you can [deploy the MC from the Google Cloud Marketplace](https://console.cloud.google.com/kubernetes/application(cameo:product/litmus-public/intelligent-manufacturing-connect)). Associate your MC purchase with a valid billing account and then follow the on-screen instructions.
+
+* Clear “Use Internal TCP/UDP LoadBalancer” checkbox. This feature is not available in this version
+
 Once finished, review the post installation steps below.
 ## Post-installation tasks
 ### Change initial credentials (mandatory)
