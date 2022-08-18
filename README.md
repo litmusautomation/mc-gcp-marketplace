@@ -36,8 +36,26 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
     --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
     --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}"
 ```
+
+## Prepare GCP project
+
+Follow this guide https://cloud.google.com/marketplace/docs/manage-billing#before_you_begin
+
+
 ## Deploy The Manufacturing Connect via Google Cloud Marketplace
-After you've created a Kubernetes cluster, you can [deploy the MC from the Google Cloud Marketplace](https://console.cloud.google.com/kubernetes/application(cameo:product/litmus-public/intelligent-manufacturing-connect)). Associate your MC purchase with a valid billing account and then follow the on-screen instructions.
+
+### Purchase the Manufacturing Connect for a billing account
+
+* A person with GCP Billing Admin role needs to open [the MC the Google Marketplace page](https://console.cloud.google.com/kubernetes/application(cameo:product/litmus-public/intelligent-manufacturing-connect))
+* click *PURCHASE*
+* click *MANAGE ACCOUNTS*
+* link a service account that was created in the previous step
+
+### Deploy the Manufacturing Connect to partcular GCP project
+
+After you've created a Kubernetes cluster, you can [deploy the MC from the Google Cloud Marketplace](https://console.cloud.google.com/kubernetes/application(cameo:product/litmus-public/intelligent-manufacturing-connect)).  
+Click *Configure* then follow the on-screen instructions. 
+In dropdown list *Reporting service account* select the service account name
 
 Once finished, review the post installation steps below.
 
