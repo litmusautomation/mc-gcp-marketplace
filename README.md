@@ -5,25 +5,45 @@ everything you need to put industrial data to work to enable smart manufacturing
 The solution is purpose-built to collect, process and analyze data at the edge, 
 then rapidly integrate the data with the Google Cloud Platform for analytics, AI and machine learning. 
 This document is a guide to install the MC in Google Cloud Platform (GCP).
+
 ## Pre-installation tasks
-### Enable GCP services
+
+### Define environment variables
 ```sh
 export GCP_PROJECT_ID='your-gcp-project-id'
-gcloud services enable --project=${GCP_PROJECT_ID} container.googleapis.com
-gcloud services enable --project=${GCP_PROJECT_ID} cloudiot.googleapis.com
+export REGION='us-central1'
+export ZONE='us-central1-c'
+export NETWORK_NAME="sfp-private-network"
+export SUBNET_NAME="sfp-subnet"
+export GKECLUSTER="mc-cluster"
 ```
-### Create Pub/Sub topic for MDE integration (optional)
+
+### Enable GCP services
+```sh
+gcloud services enable --project=${GCP_PROJECT_ID} container.googleapis.com
+```
+
+### Create Pub/Sub topic and a network If MDE is not installed
+
 ```sh
 gcloud pubsub topics create input-messages --project=${GCP_PROJECT_ID}
+gcloud compute networks create "$NETWORK_NAME" --project="$GCP_PROJECT_ID" \
+  --description="MDE private network" \
+  --subnet-mode=custom \
+  --mtu=1460 \
+  --bgp-routing-mode=regional
+gcloud compute networks subnets create "$SUBNET_NAME" --project="$GCP_PROJECT_ID" \
+  --range=10.154.0.0/20 \
+  --network="$NETWORK_NAME" \
+  --region="$REGION" \
+  --enable-private-ip-google-access
 ```
+
 ### Create GKE cluster
 
 The MC's services are deployed into a Kubernetes cluster. The cluster must be created before deploying the MC from the Google Cloud Marketplace.
 *UBUNTU_CONTAINERD* is the only supported image type for GKE nodes 
 ```sh
-export GKECLUSTER="mc-cluster"
-export ZONE='us-central1-c'
-
 gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER --zone "${ZONE}" \
     --no-enable-basic-auth --release-channel "regular" --machine-type "e2-standard-2" --image-type "UBUNTU_CONTAINERD" \
     --disk-type "pd-standard" --disk-size "100" --metadata disable-legacy-endpoints=true \
@@ -34,7 +54,8 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
     --enable-autoupgrade --enable-autorepair --max-surge-upgrade 1 --max-unavailable-upgrade 0 \
     --maintenance-window-start "2022-05-21T02:00:00Z" --maintenance-window-end "2022-05-22T02:00:00Z" \
     --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
-    --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}"
+    --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}" \
+    --network "sfp-private-network" --subnetwork "sfp-subnet"
 ```
 
 ## Prepare GCP project
