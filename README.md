@@ -23,10 +23,9 @@ export GKECLUSTER="mc-cluster"
 gcloud services enable --project=${GCP_PROJECT_ID} container.googleapis.com
 ```
 
-### Create Pub/Sub topic and a network If MDE is not installed
+### Create a network If MDE is not installed
 
 ```sh
-gcloud pubsub topics create input-messages --project=${GCP_PROJECT_ID}
 gcloud compute networks create "$NETWORK_NAME" --project="$GCP_PROJECT_ID" \
   --description="MDE private network" \
   --subnet-mode=custom \
