@@ -54,7 +54,7 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
     --maintenance-window-start "2022-05-21T02:00:00Z" --maintenance-window-end "2022-05-22T02:00:00Z" \
     --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
     --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}" \
-    --network "sfp-private-network" --subnetwork "sfp-subnet"
+    --network "sfp-private-network" --subnetwork "sfp-subnet" --labels "goog-packaged-solution=mfg-mde"
 ```
 
 ## Prepare GCP project
