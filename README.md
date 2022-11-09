@@ -88,11 +88,7 @@ Once finished, review the post installation steps below.
 * Follow instructions to get the application urls and initial credentials
 * Change MC Admin password
 * Change MC Keycloak Admin password
-### Provision the MC instance with a license (mandatory)
-* Get a license code using [the license request form](https://google-mc-licenses.litmus.io/)
-* Open MC Admin Console
-* Click License Server menu
-* Follow instructions for *Offline Activation*
+
 ### Upload GCP credentials (optional)
 * Open MC Admin Console
 * Click Settings/Cloud Settings
