@@ -76,3 +76,8 @@ kubectl -n $NAMESPACE set image deployment/$APP-nginx nginx=${IMAGE/$SOURCE_VER/
 echo "updating $APP-remote"
 IMAGE=$(kubectl -n $NAMESPACE get deployment/$APP-remote -o jsonpath='{@.spec.template.spec.containers[0].image}')
 kubectl -n $NAMESPACE set image deployment/$APP-remote $APP-remote=${IMAGE/$SOURCE_VER/$TARGET_VER}
+
+echo "updating $APP version"
+PATCH_APP="{\"spec\": {\"descriptor\": {\"version\": \"$TARGET_VER\"}}}"
+echo $PATCH_APP
+kubectl -n $NAMESPACE patch application $APP -p "$PATCH_APP" --type=merge
