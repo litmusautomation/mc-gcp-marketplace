@@ -6,12 +6,12 @@ GCP_PROJECT_ID='your-gcp-project-id'
 ZONE='us-central1-c'
 GKECLUSTER="mc-cluster"
 NAMESPACE=mc-dz
-SOURCE_VER=2.5.2-110
 TARGET_VER=2.6.0-120
 
 gcloud container clusters get-credentials $GKECLUSTER --zone $ZONE --project $GCP_PROJECT_ID
 
 APP=$(kubectl -n $NAMESPACE get application -o jsonpath='{range .items[*]}{@.metadata.name}')
+SOURCE_VER=$(kubectl -n $NAMESPACE get application $APP -o jsonpath='{@.spec.descriptor.version}')
 
 echo "updating $APP-activation"
 IMAGE=$(kubectl -n $NAMESPACE get deployment/$APP-activation -o jsonpath='{@.spec.template.spec.containers[0].image}')
@@ -79,5 +79,4 @@ kubectl -n $NAMESPACE set image deployment/$APP-remote $APP-remote=${IMAGE/$SOUR
 
 echo "updating $APP version"
 PATCH_APP="{\"spec\": {\"descriptor\": {\"version\": \"$TARGET_VER\"}}}"
-echo $PATCH_APP
 kubectl -n $NAMESPACE patch application $APP -p "$PATCH_APP" --type=merge
