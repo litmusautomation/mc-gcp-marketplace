@@ -2,10 +2,10 @@
 
 set -e
 
-GCP_PROJECT_ID='your-gcp-project-id'
-ZONE='us-central1-c'
-GKECLUSTER="mc-cluster"
-NAMESPACE=mc-dz
+GCP_PROJECT_ID=$1
+ZONE=$2
+GKECLUSTER=$3
+NAMESPACE=$4
 TARGET_VER=2.6.0-120
 
 gcloud container clusters get-credentials $GKECLUSTER --zone $ZONE --project $GCP_PROJECT_ID

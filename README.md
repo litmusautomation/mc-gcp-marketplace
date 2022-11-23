@@ -139,3 +139,25 @@ Authorized redirect url: `https://<your-domain>/auth/realms/standalone/broker/go
 * Add a new user (set google email)
 * Enable the user
 * Grant Admin role if required
+
+## Upgrading Manufactring Connect
+
+Prepare values to run upgrade script
+
+* GCP project id
+* Zone where GKE cluster is deployed
+* GKE cluster name
+* Kebernetes namespace where Manufacturing Connect is deployed
+
+### Clone git repository
+
+```
+git clone https://github.com/litmusautomation/mc-gcp-marketplace.git
+```
+
+### Run upgrade script
+
+```
+cd mc-gcp-marketplace
+./upgrade-2.6.0-120.sh 'GCP_PROJECT_ID' 'ZONE' 'GKECLUSTER' 'NAMESPACE'
+```
