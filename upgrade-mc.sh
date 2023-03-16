@@ -6,7 +6,7 @@ GCP_PROJECT_ID=$1
 ZONE=$2
 GKECLUSTER=$3
 NAMESPACE=$4
-TARGET_VER=2.6.0-120
+TARGET_VER=$5
 
 gcloud container clusters get-credentials $GKECLUSTER --zone $ZONE --project $GCP_PROJECT_ID
 

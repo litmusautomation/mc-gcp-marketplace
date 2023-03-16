@@ -37,11 +37,13 @@ gcloud compute networks subnets create "$SUBNET_NAME" --project="$GCP_PROJECT_ID
   --region="$REGION" \
   --enable-private-ip-google-access
 ```
-
 ### Create GKE cluster
 
 The MC's services are deployed into a Kubernetes cluster. The cluster must be created before deploying the MC from the Google Cloud Marketplace.
 *UBUNTU_CONTAINERD* is the only supported image type for GKE nodes 
+The MC can be deployed on public or private GKE cluster
+
+#### Deployment on public GKE cluster
 ```sh
 gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER --zone "${ZONE}" \
     --no-enable-basic-auth --release-channel "regular" --machine-type "e2-standard-2" --image-type "UBUNTU_CONTAINERD" \
@@ -56,6 +58,33 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
     --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}" \
     --network "sfp-private-network" --subnetwork "sfp-subnet" --labels "goog-packaged-solution=mfg-mde"
 ```
+
+#### Deployment on private GKE cluster
+
+Cloud NAT gateway has to be created before private cluster deployment. It will allow internet access for the GKE cluster allowing it to pull docker images and obtain a license.
+
+```sh
+gcloud compute routers create nat-router --network $NETWORK_NAME --region $REGION --project=${GCP_PROJECT_ID}
+gcloud compute routers nats create nat-config --router-region $REGION --router nat-router --nat-all-subnet-ip-ranges --auto-allocate-nat-external-ips --project ${GCP_PROJECT_ID}
+```  
+
+```sh
+gcloud beta container clusters create $GKECLUSTER --project "$GCP_PROJECT_ID" --zone "$ZONE" \
+            --no-enable-basic-auth --release-channel "regular" --machine-type "e2-standard-2" --image-type "UBUNTU_CONTAINERD" \
+            --disk-type "pd-standard" --disk-size "100" --metadata disable-legacy-endpoints=true \
+            --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
+            --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM \
+            --enable-ip-alias  --no-enable-intra-node-visibility --default-max-pods-per-node "110" \
+            --enable-master-authorized-networks --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver \
+            --enable-autoupgrade --enable-autorepair --max-surge-upgrade 1 --max-unavailable-upgrade 0 \
+            --maintenance-window-start "2022-11-21T02:00:00Z" --maintenance-window-end "2022-11-22T02:00:00Z" \
+            --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
+            --workload-pool "$GCP_PROJECT_ID.svc.id.goog" --enable-shielded-nodes --node-locations "$ZONE" \
+            --network "$NETWORK_NAME" --subnetwork "$SUBNET_NAME" --labels "goog-packaged-solution=mfg-mde" \
+            --enable-private-nodes --enable-private-endpoint --master-ipv4-cidr 10.155.1.0/28
+```
+
+Kubernetes control nodes CIDR `--master-ipv4-cidr 10.155.1.0/28` here is just an example. It can be modified according to a customer's network setup   
 
 ## Prepare GCP project
 
@@ -75,7 +104,8 @@ Follow this guide https://cloud.google.com/marketplace/docs/manage-billing#befor
 
 After you've created a Kubernetes cluster, you can [deploy the MC from the Google Cloud Marketplace](https://console.cloud.google.com/kubernetes/application(cameo:product/litmus-public/intelligent-manufacturing-connect)).  
 Click *Configure* then follow the on-screen instructions. 
-In dropdown list *Reporting service account* select the service account name
+In dropdown list *Reporting service account* select the service account name.  
+If the MC is deployed on private GKE cluster select Internal Load Balancer option.
 
 Once finished, review the post installation steps below.
 
@@ -157,7 +187,9 @@ git clone https://github.com/litmusautomation/mc-gcp-marketplace.git
 
 ### Run upgrade script
 
+TARGET_VERSION is required MC target version, for example `2.8.0-120`
+
 ```
 cd mc-gcp-marketplace
-./upgrade-2.6.0-120.sh 'GCP_PROJECT_ID' 'ZONE' 'GKECLUSTER' 'NAMESPACE'
+./upgrade-mc.sh 'GCP_PROJECT_ID' 'ZONE' 'GKECLUSTER' 'NAMESPACE' 'TARGET_VERSION'
 ```
