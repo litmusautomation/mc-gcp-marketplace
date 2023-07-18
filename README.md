@@ -18,6 +18,13 @@ export SUBNET_NAME="sfp-subnet"
 export GKECLUSTER="mc-cluster"
 ```
 
+MDE network/subnet names were changed since MDE 1.3.0. If Manufacturing Connect is deploying or will be deployed with MDE 1.3.0 in one GCP project, please update these environment variables accordingly.
+
+```sh
+export NETWORK_NAME=mde-private-network
+export SUBNET_NAME="mde-subnet"
+```
+
 ### Enable GCP services
 ```sh
 gcloud services enable --project=${GCP_PROJECT_ID} container.googleapis.com
@@ -56,7 +63,7 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
     --maintenance-window-start "2022-05-21T02:00:00Z" --maintenance-window-end "2022-05-22T02:00:00Z" \
     --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
     --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}" \
-    --network "sfp-private-network" --subnetwork "sfp-subnet" --labels "goog-packaged-solution=mfg-mde"
+    --network "${NETWORK_NAME}" --subnetwork "${SUBNET_NAME}" --labels "goog-packaged-solution=mfg-mde"
 ```
 
 #### Deployment on private GKE cluster
