@@ -68,13 +68,6 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
 
 #### Deployment on private GKE cluster
 
-Cloud NAT gateway has to be created before private cluster deployment. It will allow internet access for the GKE cluster allowing it to pull docker images and obtain a license.
-
-```sh
-gcloud compute routers create nat-router --network $NETWORK_NAME --region $REGION --project=${GCP_PROJECT_ID}
-gcloud compute routers nats create nat-config --router-region $REGION --router nat-router --nat-all-subnet-ip-ranges --auto-allocate-nat-external-ips --project ${GCP_PROJECT_ID}
-```  
-
 ```sh
 gcloud beta container clusters create $GKECLUSTER --project "$GCP_PROJECT_ID" --zone "$ZONE" \
             --no-enable-basic-auth --release-channel "regular" --machine-type "e2-standard-2" --image-type "UBUNTU_CONTAINERD" \
