@@ -13,6 +13,8 @@ gcloud container clusters get-credentials $GKECLUSTER --zone $ZONE --project $GC
 APP=$(kubectl -n $NAMESPACE get application -o jsonpath='{range .items[*]}{@.metadata.name}')
 SOURCE_VER=$(kubectl -n $NAMESPACE get application $APP -o jsonpath='{@.spec.descriptor.version}')
 
+kubectl -n $NAMESPACE delete pod $APP-hazelcast-0
+
 echo "updating $APP-activation"
 IMAGE=$(kubectl -n $NAMESPACE get deployment/$APP-activation -o jsonpath='{@.spec.template.spec.containers[0].image}')
 kubectl -n $NAMESPACE set image deployment/$APP-activation $APP-activation=${IMAGE/$SOURCE_VER/$TARGET_VER}
