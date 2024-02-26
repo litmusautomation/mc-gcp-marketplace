@@ -170,7 +170,7 @@ Authorized redirect url: `https://<your-domain>/auth/realms/standalone/broker/go
 * Enable the user
 * Grant Admin role if required
 
-## Upgrading Manufactring Connect
+## Upgrading Manufacturing Connect
 
 Prepare values to run upgrade script
 
