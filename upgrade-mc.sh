@@ -13,8 +13,6 @@ gcloud container clusters get-credentials $GKECLUSTER --zone $ZONE --project $GC
 APP=$(kubectl -n $NAMESPACE get application -o jsonpath='{range .items[*]}{@.metadata.name}')
 SOURCE_VER=$(kubectl -n $NAMESPACE get application $APP -o jsonpath='{@.spec.descriptor.version}')
 
-kubectl -n $NAMESPACE delete pod $APP-hazelcast-0
-
 echo "updating $APP-activation"
 IMAGE=$(kubectl -n $NAMESPACE get deployment/$APP-activation -o jsonpath='{@.spec.template.spec.containers[0].image}')
 kubectl -n $NAMESPACE set image deployment/$APP-activation $APP-activation=${IMAGE/$SOURCE_VER/$TARGET_VER}
@@ -82,3 +80,24 @@ kubectl -n $NAMESPACE set image deployment/$APP-remote $APP-remote=${IMAGE/$SOUR
 echo "updating $APP version"
 PATCH_APP="{\"spec\": {\"descriptor\": {\"version\": \"$TARGET_VER\"}}}"
 kubectl -n $NAMESPACE patch application $APP -p "$PATCH_APP" --type=merge
+
+kubectl -n $NAMESPACE set env deployment/$APP-remote \
+  CONFIG_SERVER_URL="http://$APP-cfg.$NAMESPACE.svc.cluster.local:8888" \
+  --overwrite=false
+
+kubectl -n $NAMESPACE get deployment/$APP-remote -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name=='LEM_CFG_AUTH_TOKEN')]}" | grep -q 'LEM_CFG_AUTH_TOKEN' || kubectl  -n $NAMESPACE patch deployment/$APP-remote --type='json' -p='[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/containers/0/env/-",
+    "value": {
+      "name": "LEM_CFG_AUTH_TOKEN",
+      "valueFrom": {
+        "secretKeyRef": {
+          "name": "'"$APP"'-cfg-auth",
+          "key": "cfg-auth-token",
+          "optional": false
+        }
+      }
+    }
+  }
+]'
