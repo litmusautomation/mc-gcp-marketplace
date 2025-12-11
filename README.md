@@ -52,7 +52,7 @@ The MC can be deployed on public or private GKE cluster
 
 #### Deployment on public GKE cluster
 ```sh
-gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER --zone "${ZONE}" \
+gcloud container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER --zone "${ZONE}" \
     --no-enable-basic-auth --release-channel "regular" --machine-type "e2-standard-2" --image-type "UBUNTU_CONTAINERD" \
     --disk-type "pd-standard" --disk-size "100" --metadata disable-legacy-endpoints=true \
     --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
@@ -63,13 +63,16 @@ gcloud beta container --project "${GCP_PROJECT_ID}" clusters create $GKECLUSTER 
     --maintenance-window-start "2022-05-21T02:00:00Z" --maintenance-window-end "2022-05-22T02:00:00Z" \
     --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
     --workload-pool "${GCP_PROJECT_ID}.svc.id.goog" --enable-shielded-nodes --node-locations "${ZONE}" \
-    --network "${NETWORK_NAME}" --subnetwork "${SUBNET_NAME}" --labels "goog-packaged-solution=mfg-mde"
+    --labels "goog-packaged-solution=mfg-mde" \
+    --resource-labels "goog-partner-solution=isol_plb32_0014m00001h39muqaq_svzh7h43aqrjy4f5pgv26awnepuqj4hc" \
+    --enable-cost-allocation \
+    --network "${NETWORK_NAME}" --subnetwork "${SUBNET_NAME}"
 ```
 
 #### Deployment on private GKE cluster
 
 ```sh
-gcloud beta container clusters create $GKECLUSTER --project "$GCP_PROJECT_ID" --zone "$ZONE" \
+gcloud container clusters create $GKECLUSTER --project "$GCP_PROJECT_ID" --zone "$ZONE" \
             --no-enable-basic-auth --release-channel "regular" --machine-type "e2-standard-2" --image-type "UBUNTU_CONTAINERD" \
             --disk-type "pd-standard" --disk-size "100" --metadata disable-legacy-endpoints=true \
             --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
@@ -81,6 +84,8 @@ gcloud beta container clusters create $GKECLUSTER --project "$GCP_PROJECT_ID" --
             --maintenance-window-recurrence "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" \
             --workload-pool "$GCP_PROJECT_ID.svc.id.goog" --enable-shielded-nodes --node-locations "$ZONE" \
             --network "$NETWORK_NAME" --subnetwork "$SUBNET_NAME" --labels "goog-packaged-solution=mfg-mde" \
+            --resource-labels "goog-partner-solution=isol_plb32_0014m00001h39muqaq_svzh7h43aqrjy4f5pgv26awnepuqj4hc" \
+            --enable-cost-allocation \
             --enable-private-nodes --enable-private-endpoint --master-ipv4-cidr 10.155.1.0/28
 ```
 
